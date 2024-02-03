@@ -1,6 +1,7 @@
 package fields;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -55,6 +56,22 @@ public class CustomParser {
 		} else if (type.equals(String.class)) {
 			return fieldValue;
 		}
+		else if (type.isArray())
+			return parseArray(type.componentType(), fieldValue);
 		throw new RuntimeException(String.format("Type : %s unsupported", type.getTypeName()));
+	}
+	
+	public static Object parseArray(Class<?> arrayType, String value) {
+		
+		String[] arrayValues = value.split(",");
+		Object array = Array.newInstance(arrayType, arrayValues.length);
+		int i = 0;
+		for (String arrayValue : arrayValues) {
+			
+			Object parsedValue = parseValue(arrayType, arrayValue);
+			Array.set(array, i++, parsedValue);
+		}
+		
+		return array;
 	}
 }
